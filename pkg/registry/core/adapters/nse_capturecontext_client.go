@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package capturecontext
+package adapters
 
 import (
 	"context"
@@ -43,9 +43,4 @@ func (c *contextNSEClient) Unregister(ctx context.Context, in *registry.NetworkS
 	return next.NetworkServiceEndpointRegistryClient(ctx).Unregister(ctx, in, opts...)
 }
 
-// NewNetworkServiceEndpointRegistryClient - creates a new registry.NetworkServiceEndpointRegistryClient chain element that can store
-// current context for further use with CapturedContext function.
-// For this purpose it's need to use WithCapturedContext in one of the previous chain element.
-func NewNetworkServiceEndpointRegistryClient() registry.NetworkServiceEndpointRegistryClient {
-	return &contextNSEClient{}
-}
+var _ registry.NetworkServiceEndpointRegistryClient = &contextNSEClient{}

@@ -14,33 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package capturecontext
+package adapters
 
 import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
-type contextClient struct{}
+type contextServer struct{}
 
-func (c *contextClient) Request(ctx context.Context, in *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
+func (d *contextServer) Request(ctx context.Context, in *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	captureContext(ctx)
-	return next.Client(ctx).Request(ctx, in, opts...)
+	return next.Server(ctx).Request(ctx, in)
 }
 
-func (c *contextClient) Close(ctx context.Context, in *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (d *contextServer) Close(ctx context.Context, in *networkservice.Connection) (*empty.Empty, error) {
 	captureContext(ctx)
-	return next.Client(ctx).Close(ctx, in, opts...)
+	return next.Server(ctx).Close(ctx, in)
 }
 
-// NewClient - creates a new networkservice.NetworkServiceClient chain element that can store
-// current context for further use with CapturedContext function.
-// For this purpose it's need to use WithCapturedContext in one of the previous chain element.
-func NewClient() networkservice.NetworkServiceClient {
-	return &contextClient{}
-}
+var _ networkservice.NetworkServiceServer = &contextServer{}
